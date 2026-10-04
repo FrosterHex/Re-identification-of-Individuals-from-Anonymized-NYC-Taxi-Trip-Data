@@ -398,14 +398,24 @@ def run_attack(df: pd.DataFrame,
         results["rainbow_table_stats"] = cracker.stats()
 
         t_start = time.perf_counter()
-        results["cracked_medallion"] = cracker.crack_medallion(
-            best["medallion_hash"]
+        
+        # Crack hashes for all candidates
+        candidates["cracked_medallion"] = candidates["medallion_hash"].apply(
+            lambda h: cracker.crack_medallion(h) or "[NOT FOUND]"
         )
         if crack_hack_license:
-            results["cracked_hack_license"] = cracker.crack_hack_license(
-                best["hack_license_hash"]
+            candidates["cracked_hack_license"] = candidates["hack_license_hash"].apply(
+                lambda h: cracker.crack_hack_license(h) or "[NOT FOUND]"
             )
+            
+        results["cracked_medallion"] = cracker.crack_medallion(best["medallion_hash"])
+        if crack_hack_license:
+            results["cracked_hack_license"] = cracker.crack_hack_license(best["hack_license_hash"])
+            
         results["phase2_time_s"] = round(time.perf_counter() - t_start, 6)
+
+    # Re-save the updated candidates back to results
+    results["matched_trips"] = candidates
 
     # --- Phase 3: Extract destination ---
     results["destination"] = extract_destination(best)

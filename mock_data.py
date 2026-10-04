@@ -158,7 +158,42 @@ def build_target_row(trip: dict) -> dict:
 # Main Generator
 # ──────────────────────────────────────────────────────────────────────────────
 
-def generate_dataset(output_path: str = "taxi_data_2014.csv",
+def generate_decoy_cluster(target: dict, n_decoys: int = 150) -> list[dict]:
+    """Generate a cluster of decoy trips around a target to simulate density."""
+    decoys = []
+    base_time = datetime.strptime(target["pickup_datetime"], "%Y-%m-%d %H:%M:%S")
+    
+    for _ in range(n_decoys):
+        # Time offset: +/- 10 minutes
+        time_offset = timedelta(minutes=random.uniform(-10, 10))
+        pickup_dt = base_time + time_offset
+        dropoff_dt = pickup_dt + random_trip_duration()
+        
+        # Spatial offset: +/- 0.004 degrees (~400 meters) so they round to the same 2-decimal block
+        pickup_lat = target["pickup_lat"] + random.uniform(-0.004, 0.004)
+        pickup_lon = target["pickup_lon"] + random.uniform(-0.004, 0.004)
+        
+        # Random dropoff anywhere in NYC
+        dropoff_bounds = random.choice(NYC_LAND_BOUNDS)
+        dropoff_lat, dropoff_lon = random_coordinate(**dropoff_bounds)
+        
+        distance_miles = haversine_miles(pickup_lat, pickup_lon, dropoff_lat, dropoff_lon)
+        fare = round(2.50 + (2.50 * distance_miles) + random.uniform(0.5, 3.0), 2)
+        
+        decoys.append({
+            "medallion_hash": md5_hash(random_medallion()),
+            "hack_license_hash": md5_hash(random_hack_license()),
+            "pickup_datetime": pickup_dt.strftime("%Y-%m-%d %H:%M:%S"),
+            "dropoff_datetime": dropoff_dt.strftime("%Y-%m-%d %H:%M:%S"),
+            "pickup_longitude": round(pickup_lon, 6),
+            "pickup_latitude": round(pickup_lat, 6),
+            "dropoff_longitude": dropoff_lon,
+            "dropoff_latitude": dropoff_lat,
+            "fare_amount": fare,
+        })
+    return decoys
+
+def generate_dataset(output_path: str = "taxi_data.csv",
                      n_rows: int = SYNTHETIC_ROW_COUNT) -> str:
     """Generate the synthetic taxi dataset and write it to CSV.
 
@@ -190,16 +225,20 @@ def generate_dataset(output_path: str = "taxi_data_2014.csv",
 
     rows: list[dict] = []
 
-    # --- Insert target trips first ---
+    # --- Insert target trips and their decoy clusters first ---
     for trip in TARGET_TRIPS:
         rows.append(build_target_row(trip))
-        print(f"  [TARGET] Planted: {trip['label']}")
+        decoy_cluster = generate_decoy_cluster(trip, n_decoys=150)
+        rows.extend(decoy_cluster)
+        
+        print(f"  [TARGET] Planted: {trip['label']} + 150 decoys")
         print(f"           Medallion '{trip['medallion']}' -> MD5: {md5_hash(trip['medallion'])}")
 
     # --- Fill remaining rows with random data ---
-    n_random = n_rows - len(TARGET_TRIPS)
-    for _ in range(n_random):
-        rows.append(build_random_row())
+    n_random = n_rows - len(rows)
+    if n_random > 0:
+        for _ in range(n_random):
+            rows.append(build_random_row())
 
     # --- Shuffle so targets are not at the top ---
     random.shuffle(rows)

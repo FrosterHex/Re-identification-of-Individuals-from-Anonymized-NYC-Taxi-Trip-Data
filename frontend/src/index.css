@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#050505] text-[#E0FFFF];
+  }
+}
+
+/* Dark Mode Inversion for OpenStreetMap */
+.map-tiles {
+  filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(100%);
+}

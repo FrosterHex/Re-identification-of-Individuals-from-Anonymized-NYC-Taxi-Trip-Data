@@ -6,5 +6,7 @@ venv/
 ENV/
 env/
 .env
-.streamlit/
 taxi_data_2014.csv
+taxi_data.csv
+frontend/node_modules/
+frontend/dist/

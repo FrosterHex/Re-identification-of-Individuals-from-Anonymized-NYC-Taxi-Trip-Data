@@ -2,25 +2,32 @@
 
 > **Academic Case Study** — Data Privacy, Semester 7
 
-A Python-based simulation demonstrating how the 2014 NYC Taxi and Limousine Commission (TLC) FOIL data release was vulnerable to linkage/re-identification attacks due to:
+A Python/React-based simulation demonstrating how the 2014 NYC Taxi and Limousine Commission (TLC) FOIL data release was vulnerable to linkage/re-identification attacks due to:
 1. **Unsalted MD5 hashing** of medallion numbers and hack licenses
 2. **Unmasked GPS coordinates and timestamps** left in the clear
+
+This project has been updated with a modern **React + FastAPI** architecture, featuring an interactive Cyberpunk HUD and live mapping.
 
 ## 🏗️ Architecture
 
 ```
 ROOT/
-├── config.py              # Shared constants, landmark coordinates, target trips
-├── mock_data.py           # Synthetic data generator (1,000 rows)
+├── api.py                 # FastAPI backend (REST API)
 ├── attack_logic.py        # Three-phase re-identification engine
-├── app.py                 # Streamlit interactive dashboard
+├── mock_data.py           # Synthetic data generator (1,000 rows)
+├── config.py              # Shared constants and target trips
 ├── taxi_data_2014.csv     # Generated synthetic dataset
-├── requirements.txt       # Python dependencies
+├── frontend/              # Vite + React + Tailwind Frontend
+│   ├── src/App.jsx        # Cyber HUD UI
+│   └── src/index.css      # Custom Cyberpunk Tailwind V3 styling
+├── requirements.txt       # Python backend dependencies
 └── README.md              # This file
 ```
 
 ## ⚡ Quick Start
 
+### 1. Backend Setup (FastAPI)
+Open a terminal in the root directory:
 ```bash
 # 1. Install dependencies
 pip install -r requirements.txt
@@ -28,9 +35,21 @@ pip install -r requirements.txt
 # 2. Generate synthetic dataset (if not already present)
 python mock_data.py
 
-# 3. Launch the dashboard
-streamlit run app.py
+# 3. Launch the FastAPI server
+uvicorn api:app --reload
 ```
+
+### 2. Frontend Setup (React/Vite)
+Open a second terminal in the `frontend/` directory:
+```bash
+# 1. Install NPM dependencies
+npm install
+
+# 2. Launch the Vite Dev Server
+npm run dev
+```
+
+Then navigate to `http://localhost:5173` in your browser to view the Cyber HUD.
 
 ## 🔬 The Attack (Three Phases)
 
@@ -48,10 +67,10 @@ The dashboard includes toggles to simulate proper anonymization techniques:
 1. **Salted Hashes**: Adding a cryptographic salt before hashing explodes the keyspace, making rainbow tables computationally infeasible.
 2. **Spatial Cloaking (K-Anonymity)**: Rounding GPS coordinates to 2 decimal places obscures the exact location to ~1.1km blocks, significantly increasing the number of candidate trips in Phase 1 and hiding the individual in a crowd.
 
-## 📈 New Features
-- **Realistic Data Generation**: Fares are calculated dynamically based on Haversine distance, and random pickups are constrained to land bounds (Manhattan/Brooklyn/Queens) instead of water.
-- **Memory Profiling**: Shows how lightweight the rainbow tables are (only a few megabytes of RAM required).
-- **Report Export**: Easily export the attack summary (Phase 1, 2, 3 metrics) directly to Markdown for academic reporting.
+## 📈 UI Features & Demonstrations
+- **Interactive Cyber Map**: Features CartoDB Dark Matter tiles, glowing markers, and draws the de-anonymized trajectories on a live map using React-Leaflet.
+- **Terminal Simulation**: Live-typing hacking console logs that provide step-by-step insight into the internal execution of the attack logic.
+- **Dossier Export**: A one-click "DUMP CSV" button to download the successfully cracked taxi trips to prove the vulnerability is weaponizable.
 
 ## 📚 References
 
