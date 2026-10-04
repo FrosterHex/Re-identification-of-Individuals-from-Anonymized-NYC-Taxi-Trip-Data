@@ -12,3 +12,17 @@
 .map-tiles {
   filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(100%);
 }
+
+.scanner-line {
+  background: linear-gradient(to bottom, transparent, rgba(0, 243, 255, 0.4), transparent);
+  height: 20px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: -20px; }
+  100% { top: 100%; }
+}
