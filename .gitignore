@@ -7,7 +7,7 @@ ENV/
 env/
 .env
 taxi_data_2014.csv
-taxi_data.csv
+
 frontend/node_modules/
 frontend/dist/
 
