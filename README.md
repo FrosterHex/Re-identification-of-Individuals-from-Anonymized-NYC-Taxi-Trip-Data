@@ -1,6 +1,6 @@
 # NYC Taxi Data Re-identification Attack (2014 FOIL Vulnerability)
 
-> **Academic Case Study** — Data Privacy, Semester 7
+> **Academic Case Study**
 
 A Python/React-based simulation demonstrating how the 2014 NYC Taxi and Limousine Commission (TLC) FOIL data release was vulnerable to linkage/re-identification attacks due to:
 1. **Unsalted MD5 hashing** of medallion numbers and hack licenses
@@ -50,6 +50,29 @@ npm run dev
 ```
 
 Then navigate to `http://localhost:5173` in your browser to view the Cyber HUD.
+
+## 🌍 Global Deployment (Free Hosting)
+
+This project can be deployed globally for free using **Render** (Backend) and **Vercel** (Frontend).
+
+### 1. Deploy the Backend (Render.com)
+1. Create a free account on [Render](https://render.com/) and link your GitHub.
+2. Click **New +** and select **Web Service**.
+3. Connect your GitHub repository.
+4. Set the following settings:
+   - **Language**: Python
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn api:app --host 0.0.0.0 --port $PORT`
+5. Click **Deploy**. Once it finishes, copy the URL provided (e.g., `https://your-api.onrender.com`).
+
+### 2. Deploy the Frontend (Vercel)
+1. Create a free account on [Vercel](https://vercel.com/) and link your GitHub.
+2. Click **Add New Project** and import your repository.
+3. In the project configuration, edit the **Root Directory** and select the `frontend/` folder.
+4. Expand the **Environment Variables** section and add:
+   - **Name**: `VITE_API_URL`
+   - **Value**: `[Paste your Render URL here]` (e.g., `https://your-api.onrender.com`)
+5. Click **Deploy**. Vercel will build the React app and give you a permanent global URL.
 
 ## 🔬 The Attack (Three Phases)
 

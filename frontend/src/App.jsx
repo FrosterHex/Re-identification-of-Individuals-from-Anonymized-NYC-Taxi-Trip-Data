@@ -100,7 +100,8 @@ export default function App() {
     await sleep(600);
     
     try {
-      const res = await fetch('http://localhost:8000/api/attack', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${apiUrl}/api/attack`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
